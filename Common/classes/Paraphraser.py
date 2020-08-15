@@ -2,7 +2,6 @@ import string
 
 import nltk
 import re
-import pattern.text.en as en
 import mlconjug
 
 from transformers import T5Tokenizer, T5ForConditionalGeneration
@@ -100,9 +99,9 @@ class Paraphraser:
             # Check if its only plural version
             if pos_tag_word == pos_tag_syn + 'S':
                 if pos_tag_syn.startswith('J'):
-                    return en.superlative(syn)
+                    return syn
                 elif pos_tag_syn.startswith('N'):
-                    return en.pluralize(syn)
+                    return syn
             return None if pos_tag_syn[:2] != pos_tag_word[:2] else syn
         else:
             if not pos_tag_syn.startswith('V'):
