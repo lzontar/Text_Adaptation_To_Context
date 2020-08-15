@@ -12,13 +12,13 @@ import operator
 
 
 def adapt_text(text, mean_measures, target_publication_type, debug=False):
-    debug = False
+    debug = True
     epsilon = 0.1
-    n_iterations = 100
+    n_iterations = 10
 
     adaptation_dto = AdaptationDTO(text, target_pub_type=target_publication_type, debug=debug)
-    adaptation_dto = sum_nn.adapt_length(adaptation_dto, mean_measures, n_iterations, epsilon)
-    adaptation_dto = p.adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, epsilon)
+    adaptation_dto = sum_nn.adapt_length(adaptation_dto, mean_measures, n_iterations, epsilon, debug)
+    adaptation_dto = p.adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, epsilon, debug)
     # adaptation_dto = lm.adapt_length(adaptation_dto, mean_measures, n_iterations, epsilon, debug)
     #
     # adaptation_dto = sr.adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, epsilon, debug)

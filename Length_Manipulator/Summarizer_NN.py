@@ -48,39 +48,61 @@ def generate_some_text(model, tokenizer, device, input_str, text_len=250):
 # https://huggingface.co/transformers/model_doc/bart.html?highlight=no_repeat_ngram_size
 
 def summarize(adaptation_dto, mean_measures, epsilon, debug=False):
-    text = adaptation_dto.adapted_text()
+    init_text = adaptation_dto.adapted_text()
+    tokens = tokenize.word_tokenize(init_text)
+    n_blocks = math.floor(len(tokens) / 512)
+    blocks_tokens = []
+    for i in range(n_blocks - 1):
+        blocks_tokens.append(tokens[i * 512:(i + 1) * 512])
 
-    model = T5ForConditionalGeneration.from_pretrained('t5-base')
-    tokenizer = T5Tokenizer.from_pretrained('t5-base')
-    device = torch.device('cpu')
-
-    preprocess_text = text.strip().replace("\n", "")
-    t5_prepared_text = "summarize: " + preprocess_text
-
-    tokenized_text = tokenizer.encode(t5_prepared_text, return_tensors="pt").to(device)
-
-    a_tokens = math.floor(-epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
-                          + mean_measures["LEN"][adaptation_dto.target_pub_type()])
-    b_tokens = math.ceil(epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
-                         + mean_measures["LEN"][adaptation_dto.target_pub_type()])
-
-    summary_ids = model.generate(tokenized_text,
-                                 num_beams=4,
-                                 no_repeat_ngram_size=2,
-                                 min_length=b_tokens if a_tokens > b_tokens else a_tokens,
-                                 max_length=a_tokens if a_tokens > b_tokens else b_tokens,
-                                 early_stopping=False,
-                                 repetition_penalty=2.5,
-                                 length_penalty=1.50)
-
-    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=False)
-
+    blocks_tokens.append(tokens[n_blocks:])
+    blocks = []
+    for b in blocks_tokens:
+        tmp = ""
+        for t in b:
+            tmp = tmp + t + " "
+        blocks.append(tmp)
+    summary = ""
     if debug:
-        print("\n\n    ------------------------------- ORIGINAL TEXT -------------------------------    \n\n",
-              adaptation_dto.adapted_text())
+        print(len(blocks))
 
-    if debug:
-        print("\n\n    ------------------------------- SUMMARY -------------------------------    \n\n", summary)
+    count = 0
+    for text in blocks:
+        if debug:
+            print(count)
+        count = count + 1
+        model = T5ForConditionalGeneration.from_pretrained('t5-base')
+        tokenizer = T5Tokenizer.from_pretrained('t5-base')
+        device = torch.device('cpu')
+
+        preprocess_text = text.strip().replace("\n", "")
+        t5_prepared_text = "summarize: " + preprocess_text
+
+        tokenized_text = tokenizer.encode(t5_prepared_text, return_tensors="pt", max_length=8192).to(device)
+
+        a_tokens = math.floor(-epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
+                              + mean_measures["LEN"][adaptation_dto.target_pub_type()])
+        b_tokens = math.ceil(epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
+                             + mean_measures["LEN"][adaptation_dto.target_pub_type()])
+
+        summary_ids = model.generate(tokenized_text,
+                                     num_beams=4,
+                                     no_repeat_ngram_size=2,
+                                     min_length=b_tokens if a_tokens > b_tokens else a_tokens,
+                                     max_length=a_tokens if a_tokens > b_tokens else b_tokens,
+                                     early_stopping=False,
+                                     repetition_penalty=2.5,
+                                     length_penalty=1.50)
+
+        summary = summary + tokenizer.decode(summary_ids[0], skip_special_tokens=False)
+
+        if debug:
+            print("Summarization done")
+        # print("\n\n    ------------------------------- ORIGINAL TEXT -------------------------------    \n\n",
+        #       adaptation_dto.adapted_text())
+
+    # if debug:
+    # print("\n\n    ------------------------------- SUMMARY -------------------------------    \n\n", summary)
 
     adaptation_dto.adapted_text(summary)
 
