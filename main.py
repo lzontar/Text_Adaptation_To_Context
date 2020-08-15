@@ -49,7 +49,7 @@ except FileNotFoundError:
     text = None
 target = 'OFC_STMT'
 tc = Text_Characteristics(target)
-_data_absolute_path = 'C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/covid-19/'
+_data_absolute_path = '/content/Text_Adaptation_To_Context/Data/'
 
 
 def plus(dic1, dic2):

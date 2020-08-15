@@ -95,14 +95,14 @@ def summarize(adaptation_dto, mean_measures, epsilon, debug=False):
 def generate(adaptation_dto, mean_measures, debug):
     MODEL_EPOCH = 4
     text = adaptation_dto.adapted_text()
-    device = 'cpu'
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     tokenizer = GPT2Tokenizer.from_pretrained('gpt2-medium')
     model = GPT2LMHeadModel.from_pretrained('gpt2-medium')
     model = model.to(device)
 
-    models_folder = "C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/Model/model_" + adaptation_dto.target_pub_type().lower() + "/"
+    models_folder = "/content/drive/My Drive/Model/"
 
-    model_path = os.path.join(models_folder, f"gpt2_{MODEL_EPOCH}.pt")
+    model_path = os.path.join(models_folder, f"gpt2_{adaptation_dto.target_pub_type().lower()}_{MODEL_EPOCH}.pt")
     model.load_state_dict(torch.load(model_path))
 
     model.eval()

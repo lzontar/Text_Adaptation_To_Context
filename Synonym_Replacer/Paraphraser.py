@@ -61,7 +61,7 @@ def set_seed(seed):
 
 def generate_sequences(sentence):
     set_seed(42)
-    _data_absolute_path = 'C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/'
+    _data_absolute_path = '/content/drive/My Drive/'
 
     model = T5ForConditionalGeneration.from_pretrained(_data_absolute_path + 'Model/t5_paraphrase')
     tokenizer = T5Tokenizer.from_pretrained('t5-base')
