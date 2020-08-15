@@ -5,7 +5,7 @@ import pandas as pd
 
 import Common.library.Visualization as vis
 import Common.classes.Text_Adaptation as ta
-import Text_Characteristics
+import Text_Characteristics.Text_Characteristics as text_char
 
 # text_characteristics = Text_Characteristics.Text_Characteristics(None, None)
 # mean_measures = text_characteristics.mean_measures(True)
@@ -41,7 +41,7 @@ results = []
 target_value = 30
 
 target = 'OFC_STMT'
-tc = Text_Characteristics(target)
+tc = text_char(target)
 _data_absolute_path = '/content/Text_Adaptation_To_Context/Data/'
 
 
