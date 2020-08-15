@@ -80,7 +80,7 @@ def adapt(dataset, orig_type):
 
     count = 0
     for text in dataset:
-        output = open("./Data/Test/Input/input_" + orig_type + str(count) + ".txt", "w")
+        output = open("/content/drive/My Drive/Data/Input/input_" + orig_type + str(count) + ".txt", "w")
         output.write(text)
         output.close()
 
@@ -92,7 +92,7 @@ def adapt(dataset, orig_type):
         adapted_measures = tc.calc_text_measures(adapted_text)
         sum_measures_result = plus(sum_measures_result, adapted_measures)
 
-        output = open("./Data/Test/Output/out_" + orig_type + str(count) + ".txt", "w")
+        output = open("/content/drive/My Drive/Data/Output/out_" + orig_type + str(count) + ".txt", "w")
         output.write(adapted_text)
         output.close()
 
