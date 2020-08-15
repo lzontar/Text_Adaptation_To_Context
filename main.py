@@ -40,13 +40,6 @@ initial_values = []
 results = []
 target_value = 30
 
-origin_text_filename = './Data/Test/Input/test.txt'  # input("Origin text filename: ")
-file = open(origin_text_filename, "r", encoding='utf8')
-try:
-    text = file.read()
-except FileNotFoundError:
-    print("File was not found. Please, input an existing file in the executing directory.")
-    text = None
 target = 'OFC_STMT'
 tc = Text_Characteristics(target)
 _data_absolute_path = '/content/Text_Adaptation_To_Context/Data/'
