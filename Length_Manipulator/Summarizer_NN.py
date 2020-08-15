@@ -52,10 +52,10 @@ def summarize(adaptation_dto, mean_measures, epsilon, debug=False):
     tokens = tokenize.word_tokenize(init_text)
     n_blocks = math.floor(len(tokens) / 512)
     blocks_tokens = []
-    for i in range(n_blocks - 1):
+    for i in range(n_blocks):
         blocks_tokens.append(tokens[i * 512:(i + 1) * 512])
 
-    blocks_tokens.append(tokens[n_blocks:])
+    blocks_tokens.append(tokens[(n_blocks) * 512:])
     blocks = []
     for b in blocks_tokens:
         tmp = ""
@@ -65,7 +65,10 @@ def summarize(adaptation_dto, mean_measures, epsilon, debug=False):
     summary = ""
     if debug:
         print(len(blocks))
-
+    a_tokens = round(math.floor(-epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
+                          + mean_measures["LEN"][adaptation_dto.target_pub_type()]) / n_blocks + 1)
+    b_tokens = round(math.ceil(epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
+                         + mean_measures["LEN"][adaptation_dto.target_pub_type()]) / n_blocks + 1)
     count = 0
     for text in blocks:
         if debug:
@@ -73,17 +76,12 @@ def summarize(adaptation_dto, mean_measures, epsilon, debug=False):
         count = count + 1
         model = T5ForConditionalGeneration.from_pretrained('t5-base')
         tokenizer = T5Tokenizer.from_pretrained('t5-base')
-        device = torch.device('cpu')
-
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model.to(device)
         preprocess_text = text.strip().replace("\n", "")
         t5_prepared_text = "summarize: " + preprocess_text
 
-        tokenized_text = tokenizer.encode(t5_prepared_text, return_tensors="pt", max_length=8192).to(device)
-
-        a_tokens = math.floor(-epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
-                              + mean_measures["LEN"][adaptation_dto.target_pub_type()])
-        b_tokens = math.ceil(epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
-                             + mean_measures["LEN"][adaptation_dto.target_pub_type()])
+        tokenized_text = tokenizer.encode(t5_prepared_text, return_tensors="pt").to(device)
 
         summary_ids = model.generate(tokenized_text,
                                      num_beams=4,
@@ -102,7 +100,7 @@ def summarize(adaptation_dto, mean_measures, epsilon, debug=False):
         #       adaptation_dto.adapted_text())
 
     # if debug:
-    # print("\n\n    ------------------------------- SUMMARY -------------------------------    \n\n", summary)
+        # print("\n\n    ------------------------------- SUMMARY -------------------------------    \n\n", summary)
 
     adaptation_dto.adapted_text(summary)
 
@@ -132,8 +130,7 @@ def generate(adaptation_dto, mean_measures, debug):
     text = generate_some_text(model, tokenizer, device, text, round(abs(
         mean_measures['LEN'][adaptation_dto.target_pub_type()] - adaptation_dto.text_measures()['LEN'])))
 
-    adaptation_dto.adapted_text(text)
-    return adaptation_dto
+    return text
 
 
 def adapt_length(adaptation_dto, mean_measures, n_iterations, epsilon, debug=False):
