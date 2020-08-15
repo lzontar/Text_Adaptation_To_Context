@@ -73,7 +73,8 @@ def adapt(dataset, orig_type):
 
     count = 0
     for text in dataset:
-        output = open("/content/drive/My Drive/Data/Input/input_" + orig_type + str(count) + ".txt", "w")
+        print(count)
+        output = open("/content/drive/My Drive/Data/Input/input_" + orig_type + str(count) + ".txt", "w+")
         output.write(text)
         output.close()
 
@@ -85,7 +86,7 @@ def adapt(dataset, orig_type):
         adapted_measures = tc.calc_text_measures(adapted_text)
         sum_measures_result = plus(sum_measures_result, adapted_measures)
 
-        output = open("/content/drive/My Drive/Data/Output/out_" + orig_type + str(count) + ".txt", "w")
+        output = open("/content/drive/My Drive/Data/Output/out_" + orig_type + str(count) + ".txt", "w+")
         output.write(adapted_text)
         output.close()
 
@@ -152,9 +153,11 @@ dict_result_rel = {
 }
 
 if target != 'OFC_STMT':
+    print('OFC_STMT')
     dataset = random.sample(set(pd.read_csv(_data_absolute_path + 'official_statements/data.csv')['content']), sample_size)
     dict_init['OFC_STMT'], dict_result['OFC_STMT'], dict_init_rel['OFC_STMT'], dict_result_rel['OFC_STMT'] = adapt(dataset, 'OFC_STMT')
 if target != 'RES_ARTCL':
+    print('RES_ARTCL')
     rootdir = _data_absolute_path + 'research_articles/document_parses/pdf_json'
     dataset = []
     for subdir, dirs, files in os.walk(rootdir):
@@ -173,9 +176,11 @@ if target != 'RES_ARTCL':
     dict_init['RES_ARTCL'], dict_result['RES_ARTCL'], dict_init_rel['RES_ARTCL'], dict_result_rel['RES_ARTCL'] = adapt(dataset, 'RES_ARTCL')
 
 if target != 'SOC_MED':
+    print('SOC_MED')
     dataset = random.sample(set(pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text']), sample_size)
     dict_init['SOC_MED'], dict_result['SOC_MED'], dict_init_rel['SOC_MED'], dict_result_rel['SOC_MED'] = adapt(dataset, 'SOC_MED')
 if target != 'NEWS':
+    print('NEWS')
     dataset = random.sample(set(pd.read_csv(_data_absolute_path + 'news/news.csv')['text']), sample_size)
     dict_init['NEWS'], dict_result['NEWS'], dict_init_rel['NEWS'], dict_result_rel['NEWS'] = adapt(dataset, 'NEWS')
 

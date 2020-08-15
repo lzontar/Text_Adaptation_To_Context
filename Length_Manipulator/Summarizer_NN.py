@@ -63,8 +63,6 @@ def summarize(adaptation_dto, mean_measures, epsilon, debug=False):
                           + mean_measures["LEN"][adaptation_dto.target_pub_type()])
     b_tokens = math.ceil(epsilon * mean_measures["LEN"][adaptation_dto.target_pub_type()] \
                          + mean_measures["LEN"][adaptation_dto.target_pub_type()])
-    if debug:
-        print("Text measures before summarization: ", adaptation_dto.text_measures())
 
     summary_ids = model.generate(tokenized_text,
                                  num_beams=4,
@@ -106,6 +104,8 @@ def generate(adaptation_dto, mean_measures, debug):
     model.load_state_dict(torch.load(model_path))
 
     model.eval()
+    if debug:
+        print("Text measures before generation: ", adaptation_dto.text_measures())
 
     text = generate_some_text(model, tokenizer, device, text, round(abs(
         mean_measures['LEN'][adaptation_dto.target_pub_type()] - adaptation_dto.text_measures()['LEN'])))
