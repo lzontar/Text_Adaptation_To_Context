@@ -116,7 +116,7 @@ for mode in modes:
                 try:
                     count_file = count + iter*sample_size
                     text = dataset[count]
-                    print(count)
+                    print(count_file)
                     output = open("/content/drive/My Drive/Data/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count_file) + ".txt", "w+", encoding='utf-8')
                     output.write(str(text))
                     output.close()
@@ -255,14 +255,14 @@ for mode in modes:
                     ix = ix + 1
             dict_init['RES_ARTCL'], dict_result['RES_ARTCL'], dict_init_rel['RES_ARTCL'], dict_result_rel['RES_ARTCL'], dict_length['RES_ARTCL'], dict_length_rel['RES_ARTCL'] = adapt(dataset, 'RES_ARTCL')
         #
-        # if target != 'SOC_MED':
-        #     print('SOC_MED')
-        #     dataset = pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text'].iloc[50 + iter*sample_size: + (iter+1)*sample_size]
-        #     dict_init['SOC_MED'], dict_result['SOC_MED'], dict_init_rel['SOC_MED'], dict_result_rel['SOC_MED'], dict_length['SOC_MED'], dict_length_rel['SOC_MED'] = adapt(dataset, 'SOC_MED')
-        if target != 'NEWS':
-            print('NEWS')
-            dataset = pd.read_csv(_data_absolute_path + 'news/news.csv')['text'].iloc[50 + iter*sample_size: + (iter+1)*sample_size]
-            dict_init['NEWS'], dict_result['NEWS'], dict_init_rel['NEWS'], dict_result_rel['NEWS'], dict_length['NEWS'], dict_length_rel['NEWS'] = adapt(dataset, 'NEWS')
+        if target != 'SOC_MED':
+            print('SOC_MED')
+            dataset = pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text'].iloc[(50 + iter*sample_size):(50 + (iter+1)*sample_size)]
+            dict_init['SOC_MED'], dict_result['SOC_MED'], dict_init_rel['SOC_MED'], dict_result_rel['SOC_MED'], dict_length['SOC_MED'], dict_length_rel['SOC_MED'] = adapt(dataset, 'SOC_MED')
+        # if target != 'NEWS':
+        #     print('NEWS')
+        #     dataset = pd.read_csv(_data_absolute_path + 'news/news.csv')['text'].iloc[(50 + iter*sample_size):(50 + (iter+1)*sample_size)]
+        #     dict_init['NEWS'], dict_result['NEWS'], dict_init_rel['NEWS'], dict_result_rel['NEWS'], dict_length['NEWS'], dict_length_rel['NEWS'] = adapt(dataset, 'NEWS')
 
         keys = ['OFC_STMT', 'RES_ARTCL', 'SOC_MED', 'NEWS']
         keys.remove(target)
