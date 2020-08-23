@@ -64,7 +64,6 @@ def set_seed(seed):
 
 def generate_sequences(model, tokenizer, device, sentence):
     set_seed(42)
-    _data_absolute_path = 'C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/'
 
     text = "paraphrase: " + sentence + " </s>"
 

@@ -20,7 +20,7 @@ tokenizer_sum = T5Tokenizer.from_pretrained('t5-base')
 device_sum = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 model_sum.to(device_sum)
 
-models_folder = "C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/Model/"
+models_folder = "/content/drive/My Drive/Model/"
 
 model_para = T5ForConditionalGeneration.from_pretrained(models_folder + 't5_paraphrase')
 tokenizer_para = T5Tokenizer.from_pretrained('t5-base')
@@ -28,8 +28,7 @@ tokenizer_para = T5Tokenizer.from_pretrained('t5-base')
 device_para = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 model_para = model_para.to(device_para)
 
-_data_absolute_path = 'C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/covid-19/'
-_results_absolute_path = 'C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/Test/Results/'
+_data_absolute_path = '/content/Text_adaptation_To_Context/Data/'
 
 mean_measures = {
     "LEN": {'SOC_MED': 24.09, 'NEWS': 939.49, 'OFC_STMT': 923.15, 'RES_ARTCL': 4390.29},
@@ -115,7 +114,7 @@ for mode in modes:
             count = 0
             for text in dataset:
                 print(count)
-                output = open("C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/Test/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
+                output = open("/content/drive/My Drive/Data/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
                 output.write(text)
                 output.close()
 
@@ -132,7 +131,7 @@ for mode in modes:
                 # adapted_measures = tc.calc_text_measures(adapted_text)
                 # sum_measures_result = plus(sum_measures_result, adapted_measures)
 
-                output = open("C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/Test/Results_02/out_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
+                output = open("/content/drive/My Drive/Data/Results_02/out_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
                 output.write(adapted_text)
                 output.close()
 
