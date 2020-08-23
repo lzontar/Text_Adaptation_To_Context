@@ -17,7 +17,7 @@ MODEL_EPOCH = 4
 
 model_sum = T5ForConditionalGeneration.from_pretrained('t5-base')
 tokenizer_sum = T5Tokenizer.from_pretrained('t5-base')
-device_sum = torch.device("cpu" if torch.cuda.is_available() else "cpu")
+device_sum = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_sum.to(device_sum)
 
 models_folder = "/content/drive/My Drive/Model/"
@@ -25,7 +25,7 @@ models_folder = "/content/drive/My Drive/Model/"
 model_para = T5ForConditionalGeneration.from_pretrained(models_folder + 't5_paraphrase')
 tokenizer_para = T5Tokenizer.from_pretrained('t5-base')
 
-device_para = torch.device("cpu" if torch.cuda.is_available() else "cpu")
+device_para = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_para = model_para.to(device_para)
 
 _data_absolute_path = '/content/Text_adaptation_To_Context/Data/'
@@ -65,7 +65,7 @@ for mode in modes:
         model_gen = GPT2LMHeadModel.from_pretrained('gpt2-medium')
         model_gen = model_gen.to(device_gen)
 
-        model_path = os.path.join(models_folder + "model_" + target.lower() + "/", f"gpt2_{MODEL_EPOCH}.pt")
+        model_path = os.path.join(models_folder, f"gpt2_{target.lower()}_{MODEL_EPOCH}.pt")
         model_gen.load_state_dict(torch.load(model_path))
         model_gen.eval()
 
