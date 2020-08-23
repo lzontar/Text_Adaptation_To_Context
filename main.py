@@ -60,7 +60,7 @@ for mode in modes:
     for target in targets:
         # if (target == "SOC_MED" or target == "NEWS") and mode != "PARA":
         #     continue
-        device_gen = torch.device("cpu" if torch.cuda.is_available() else "cpu")
+        device_gen = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         tokenizer_gen = GPT2Tokenizer.from_pretrained('gpt2-medium')
         model_gen = GPT2LMHeadModel.from_pretrained('gpt2-medium')
         model_gen = model_gen.to(device_gen)
