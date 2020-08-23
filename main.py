@@ -28,7 +28,7 @@ tokenizer_para = T5Tokenizer.from_pretrained('t5-base')
 device_para = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_para = model_para.to(device_para)
 
-_data_absolute_path = '/content/Text_adaptation_To_Context/Data/'
+_data_absolute_path = '/content/Text_Adaptation_To_Context/Data/'
 
 mean_measures = {
     "LEN": {'SOC_MED': 24.09, 'NEWS': 939.49, 'OFC_STMT': 923.15, 'RES_ARTCL': 4390.29},
@@ -56,7 +56,7 @@ variance_measures = {
 
 modes = ["PARA"]
 for mode in modes:
-    targets = ["RES_ARTCL"]
+    targets = ["SOC_MED"]
     for target in targets:
         # if (target == "SOC_MED" or target == "NEWS") and mode != "PARA":
         #     continue
@@ -111,11 +111,11 @@ for mode in modes:
             #         "READ": 0
             #     }
 
-            count = 0
+            count = 50
             for text in dataset:
                 print(count)
                 output = open("/content/drive/My Drive/Data/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
-                output.write(text)
+                output.write(str(text))
                 output.close()
 
                 # init_measures = tc.calc_text_measures(text)
@@ -132,7 +132,7 @@ for mode in modes:
                 # sum_measures_result = plus(sum_measures_result, adapted_measures)
 
                 output = open("/content/drive/My Drive/Data/Results_02/out_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
-                output.write(adapted_text)
+                output.write(str(adapted_text))
                 output.close()
 
                 count = count + 1
@@ -230,7 +230,7 @@ for mode in modes:
 
         if target != 'OFC_STMT':
             print('OFC_STMT')
-            dataset = pd.read_csv(_data_absolute_path + 'official_statements/data.csv')['content'].iloc[50:50+sample_size]
+            dataset = pd.read_csv(_data_absolute_path + 'official_statements/data.csv')['content'].iloc[100:100+sample_size]
             dict_init['OFC_STMT'], dict_result['OFC_STMT'], dict_init_rel['OFC_STMT'], dict_result_rel['OFC_STMT'], dict_length['OFC_STMT'], dict_length_rel['OFC_STMT'] = adapt(dataset, 'OFC_STMT')
         if target != 'RES_ARTCL':
             print('RES_ARTCL')
@@ -238,7 +238,7 @@ for mode in modes:
             dataset = []
             for subdir, dirs, files in os.walk(rootdir):
                 ix = 0
-                files = files[50:50+sample_size]
+                files = files[100:100+sample_size]
                 for f in files:
                     if ix == sample_size:
                         break
@@ -255,11 +255,11 @@ for mode in modes:
         #
         if target != 'SOC_MED':
             print('SOC_MED')
-            dataset = pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text'].iloc[50:50+sample_size]
+            dataset = pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text'].iloc[100:100+sample_size]
             dict_init['SOC_MED'], dict_result['SOC_MED'], dict_init_rel['SOC_MED'], dict_result_rel['SOC_MED'], dict_length['SOC_MED'], dict_length_rel['SOC_MED'] = adapt(dataset, 'SOC_MED')
         if target != 'NEWS':
             print('NEWS')
-            dataset = pd.read_csv(_data_absolute_path + 'news/news.csv')['text'].iloc[50:50+sample_size]
+            dataset = pd.read_csv(_data_absolute_path + 'news/news.csv')['text'].iloc[100:100+sample_size]
             dict_init['NEWS'], dict_result['NEWS'], dict_init_rel['NEWS'], dict_result_rel['NEWS'], dict_length['NEWS'], dict_length_rel['NEWS'] = adapt(dataset, 'NEWS')
 
         keys = ['OFC_STMT', 'RES_ARTCL', 'SOC_MED', 'NEWS']
