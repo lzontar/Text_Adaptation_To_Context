@@ -56,7 +56,7 @@ variance_measures = {
 
 modes = ["PARA"]
 for mode in modes:
-    targets = ["OFC_STMT"]
+    targets = ["RES_ARTCL"]
     for target in targets:
         # if (target == "SOC_MED" or target == "NEWS") and mode != "PARA":
         #     continue
