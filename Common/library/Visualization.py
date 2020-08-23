@@ -83,17 +83,23 @@ import matplotlib.pyplot as plt
 from matplotlib.dates import date2num
 import datetime
 
-def vis_results(initial_values, results, target, target_value):
+def vis_results(initial_values, results, target, target_value, metric):
 
     labels = []
     colors = []
     target_color = None
+    metrics_mapper = {
+        'LEN': 'Relative difference between lengths',
+        'SENT_ANAL': 'Relative difference between polarity scores',
+        'READ': 'Relative difference between readability scores'
+    }
+
     if target == 'OFC_STMT':
         labels = ['Research articles', 'News', 'Social media']
         colors = [color_ABSTR, color_NEWS, color_SOC_MED]
         target_color = color_OFC_STMT
-    elif target == 'RES_ARCL':
-        labels = ['Official statements', 'News', 'Social media']
+    elif target == 'RES_ARTCL':
+        labels = ['Official statements', 'New', 'Social media']
         colors = [color_OFC_STMT, color_NEWS, color_SOC_MED]
         target_color = color_ABSTR
     elif target == 'NEWS':
@@ -101,7 +107,7 @@ def vis_results(initial_values, results, target, target_value):
         colors = [color_OFC_STMT, color_ABSTR, color_SOC_MED]
         target_color = color_NEWS
     elif target == 'SOC_MED':
-        labels = ['Official statements', 'Research articles', 'News', ]
+        labels = ['Official statements', 'Research articles', 'News']
         colors = [color_OFC_STMT, color_ABSTR, color_NEWS]
         target_color = color_SOC_MED
 
@@ -109,22 +115,20 @@ def vis_results(initial_values, results, target, target_value):
     import matplotlib.pyplot as plt
     import numpy as np
 
-    men_means = [20, 34, 30]
-    women_means = [25, 32, 34]
-
     x = np.arange(len(labels))  # the label locations
     width = 0.30  # the width of the bars
 
     fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width / 2, men_means, width, label='Initial value', color='lightskyblue')
-    rects2 = ax.bar(x + width / 2, women_means, width, label='Result', color='lightslategray')
-
+    rects1 = ax.bar(x - width / 2, initial_values, width, label='Initial value', color='lightskyblue')
+    rects2 = ax.bar(x + width / 2, results, width, label='Result', color='lightslategray')
+    font = {'fontsize': 10,
+     'fontweight': 'bold',
+     'verticalalignment': 'baseline'}
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Scores')
-    ax.set_title('Scores by group and gender')
+    ax.set_ylabel(metrics_mapper[metric], fontdict=font)
     ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    plt.axhline(y=target_value, color='black', linestyle='-', label='Target value')
+    ax.set_xticklabels(labels, fontdict=font)
+    # plt.axhline(y=target_value, color='black', linestyle='-', label='Target value')
     ax.legend()
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
 
@@ -144,3 +148,4 @@ def vis_results(initial_values, results, target, target_value):
     fig.tight_layout()
 
     plt.show()
+import numpy as np

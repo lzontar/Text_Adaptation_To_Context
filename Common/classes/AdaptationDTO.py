@@ -7,10 +7,12 @@ class AdaptationDTO:
     def __init__(self, text, target_pub_type, debug=False):
         """ Constructor for this class. """
         self._orig_text = text
-        self._adapted_text = text.lower()
+        self._adapted_text = text
         self._target_pub_type = target_pub_type
 
         self._entities, self._lower_entities = com.entities_from_text(text)
+        self.text_characteristics = tc(self.target_pub_type())
+
         self.generate_adapted_text(debug)
         self.debug = debug
 
@@ -29,8 +31,7 @@ class AdaptationDTO:
         # self._orig_ordered_sentences = com.split_into_sentences(self.adapted_text())
         # self._importance_ordered_sentences, _ = com.calc_sentence_similarity(self.adapted_text(), debug=debug)
         # self._orig_to_importance_sentence_mapper = self.build_mapper_orig_to_importance(debug)
-        text_characteristics = tc(self.target_pub_type())
-        self._text_measures = text_characteristics.calc_text_measures(self.adapted_text())
+        self._text_measures = self.text_characteristics.calc_text_measures(self.adapted_text())
 
     def orig_text(self):
         return self._orig_text

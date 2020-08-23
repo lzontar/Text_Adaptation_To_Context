@@ -5,8 +5,8 @@ from transformers import T5ForConditionalGeneration, T5Tokenizer
 import Common.library.Common as com
 
 
-def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, epsilon, debug):
-    sentences = com.calc_sentence_similarity(adaptation_dto.adapted_text())
+def adapt_complexity_and_polarity(model, tokenizer, device, adaptation_dto, mean_measures, n_iterations, epsilon, text_characteristics, debug):
+    sentences,_ = com.calc_sentence_similarity(adaptation_dto.adapted_text())
     text = adaptation_dto.adapted_text()
     rel_polar = abs((adaptation_dto.text_measures()['SENT_ANAL']['POLAR'] - mean_measures['SENT_ANAL'][adaptation_dto.target_pub_type()]['POLAR']) / mean_measures['SENT_ANAL'][adaptation_dto.target_pub_type()]['POLAR'])
     rel_read = abs((
@@ -14,19 +14,19 @@ def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, e
                mean_measures['READ'][adaptation_dto.target_pub_type()])
 
     curr_diff = rel_polar + rel_read
-    text_characteristics = tc(adaptation_dto.target_pub_type())
-
     for s in sentences:
         if n_iterations == 0 or abs(curr_diff) <= epsilon:
             break
+        sentences_result = com.split_into_sentences(text)
 
-        paraphrases = generate_sequences(s)
+        paraphrases = generate_sequences(model, tokenizer, device, s[1])
         best_paraphrase = None
+        best_paraphrase_text = None
         best_paraphrase_diff = None
 
         for p in paraphrases:
-            replaced_text = text
-            replaced_text = re.sub(s, p, replaced_text)
+            replaced_list = [p if x == s[1] else x for x in sentences_result]
+            replaced_text = " ".join(replaced_list)
 
             curr_polar_with_para = text_characteristics.calc_polarity_scores(replaced_text)
             curr_read_with_para = com.flesch_reading_ease(replaced_text)
@@ -40,16 +40,19 @@ def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, e
 
             if best_paraphrase is None or (curr_diff_with_para < best_paraphrase_diff):
                 best_paraphrase = p
+                best_paraphrase_text = replaced_text
                 best_paraphrase_diff = curr_diff_with_para
 
-        if best_paraphrase is not None and best_paraphrase != s and curr_diff > best_paraphrase_diff:
-            text = re.sub(s, best_paraphrase, text)
+        if best_paraphrase is not None and best_paraphrase != s[1] and curr_diff > best_paraphrase_diff:
+            text = best_paraphrase_text
 
             if debug:
-                print("Replacing '", s, "' for '", best_paraphrase, "'")
+                print("Replacing '", s[1], "' for '", best_paraphrase, "'")
                 print("Relative difference after replacement: ", best_paraphrase_diff)
             curr_diff = best_paraphrase_diff
         n_iterations = n_iterations - 1
+    adaptation_dto.adapted_text(text)
+
     return adaptation_dto
 
 
@@ -59,16 +62,9 @@ def set_seed(seed):
         torch.cuda.manual_seed_all(seed)
 
 
-def generate_sequences(sentence):
+def generate_sequences(model, tokenizer, device, sentence):
     set_seed(42)
-    _data_absolute_path = '/content/drive/My Drive/'
-
-    model = T5ForConditionalGeneration.from_pretrained(_data_absolute_path + 'Model/t5_paraphrase')
-    tokenizer = T5Tokenizer.from_pretrained('t5-base')
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("device ", device)
-    model = model.to(device)
+    _data_absolute_path = 'C:/Luka/School/Bachelor/Bachelor\'s thesis/Text_Adaptation/Data/'
 
     text = "paraphrase: " + sentence + " </s>"
 

@@ -6,6 +6,7 @@ import re
 import textstat
 import Text_Characteristics.Text_Characteristics as tc
 from PyDictionary import PyDictionary
+import pattern.text.en as en
 import mlconjug
 import spacy
 import Common.library.Common as com
@@ -35,9 +36,7 @@ def word_dictionary_item(x):
     }
 
 
-def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, epsilon, debug):
-    dictionary = PyDictionary()
-    nlp = spacy.load("en_core_web_sm")
+def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, epsilon, nlp, dictionary, text_characteristics, debug):
 
     text = adaptation_dto.adapted_text()
 
@@ -70,8 +69,6 @@ def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, e
         print("Starting difference sum: ", curr_diff)
 
     ix = 0
-    text_characteristics = tc(adaptation_dto.target_pub_type())
-
     while ix < n_iterations and ix < n_words and abs(curr_diff) > epsilon:
         word = sorted_rel_polarity_readability[ix]['WORD']
         tag = sorted_rel_polarity_readability[ix]['TAG']
@@ -79,6 +76,8 @@ def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, e
         best_synonym_diff = None
 
         synonyms = dictionary.synonym(word)
+        if synonyms is None:
+            synonyms = dictionary.synonym(word.lower())
 
         for syn in (synonyms if synonyms is not None else []):
             syn = try_fix_form((word, tag), nltk.pos_tag([syn])[0])
@@ -86,9 +85,12 @@ def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, e
                 continue
 
             text_with_syn = text
-
-            text_with_syn = re.sub(r'\b' + word + '\b', syn, text_with_syn)
-            text_with_syn = re.sub(r'([^a-zA-Z]+)' + word + r'([^a-zA-Z]+)', r'\1' + syn + r'\2', text_with_syn)
+            if re.search('[^a-zA-Z]', syn) is None:
+                text_with_syn = re.sub(r'([^\w]+)' + word + r'([^\w]+)', r'\1' + syn + r'\2', text_with_syn)
+                text_with_syn = re.sub(r'([^\w]+)' + word.lower() + r'([^\w]+)', r'\1' + syn + r'\2', text_with_syn)
+            else:
+                text_with_syn = text_with_syn.replace(word, syn)
+                text_with_syn = text_with_syn.replace(word.lower(), syn)
 
             curr_polar_with_syn = text_characteristics.calc_polarity_scores(text_with_syn)
             curr_read_with_syn = com.flesch_reading_ease(text_with_syn)
@@ -107,8 +109,13 @@ def adapt_complexity_and_polarity(adaptation_dto, mean_measures, n_iterations, e
 
         if best_synonym is not None and best_synonym != word and curr_diff > best_synonym_diff:
             # We change all occurrences and set new current polarity
-            text = re.sub(r'\b' + word + '\b', best_synonym, text)
-            text = re.sub(r'([^a-zA-Z]+)' + word + r'([^a-zA-Z]+)', r'\1' + best_synonym + r'\2', text)
+
+            if re.search('[^a-zA-Z]', best_synonym) is None:
+                text = re.sub(r'([^\w]+)' + word + r'([^\w]+)', r'\1' + best_synonym + r'\2', text_with_syn)
+                text = re.sub(r'([^\w]+)' + word.lower() + r'([^\w]+)', r'\1' + best_synonym + r'\2', text_with_syn)
+            else:
+                text = text_with_syn.replace(word, best_synonym)
+                text = text_with_syn.replace(word.lower(), best_synonym)
 
             if debug:
                 print("Replacing '", word, "' for '", best_synonym, "'")
@@ -132,9 +139,9 @@ def try_fix_form(word_pos, syn_pos):
         # Check if its only plural version
         if pos_tag_word == pos_tag_syn + 'S':
             if pos_tag_syn.startswith('J'):
-                return syn
+                return en.superlative(syn)
             elif pos_tag_syn.startswith('N'):
-                return syn
+                return en.pluralize(syn)
         return None if pos_tag_syn[:2] != pos_tag_word[:2] else syn
     else:
         if not pos_tag_syn.startswith('V'):

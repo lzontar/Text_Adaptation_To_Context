@@ -16,9 +16,38 @@ import syllables
 def bag_of_words(sentence):
     return Counter(word.lower().strip('.,') for word in sentence.split(' '))
 
+alphabets= "([A-Za-z])"
+prefixes = "(Mr|St|Mrs|Ms|Dr)[.]"
+suffixes = "(Inc|Ltd|Jr|Sr|Co)"
+starters = "(Mr|Mrs|Ms|Dr|He\s|She\s|It\s|They\s|Their\s|Our\s|We\s|But\s|However\s|That\s|This\s|Wherever)"
+acronyms = "([A-Z][.][A-Z][.](?:[A-Z][.])?)"
+websites = "[.](com|net|org|io|gov)"
 
 def split_into_sentences(text):
-    return tokenize.sent_tokenize(text)
+    text = " " + text + "  "
+    text = text.replace("\n"," ")
+    text = re.sub(prefixes,"\\1<prd>",text)
+    text = re.sub(websites,"<prd>\\1",text)
+    if "Ph.D" in text: text = text.replace("Ph.D.","Ph<prd>D<prd>")
+    text = re.sub("\s" + alphabets + "[.] "," \\1<prd> ",text)
+    text = re.sub(acronyms+" "+starters,"\\1<stop> \\2",text)
+    text = re.sub(alphabets + "[.]" + alphabets + "[.]" + alphabets + "[.]","\\1<prd>\\2<prd>\\3<prd>",text)
+    text = re.sub(alphabets + "[.]" + alphabets + "[.]","\\1<prd>\\2<prd>",text)
+    text = re.sub(" "+suffixes+"[.] "+starters," \\1<stop> \\2",text)
+    text = re.sub(" "+suffixes+"[.]"," \\1<prd>",text)
+    text = re.sub(" " + alphabets + "[.]"," \\1<prd>",text)
+    if "”" in text: text = text.replace(".”","”.")
+    if "\"" in text: text = text.replace(".\"","\".")
+    if "!" in text: text = text.replace("!\"","\"!")
+    if "?" in text: text = text.replace("?\"","\"?")
+    text = text.replace(".",".<stop>")
+    text = text.replace("?","?<stop>")
+    text = text.replace("!","!<stop>")
+    text = text.replace("<prd>",".")
+    sentences = text.split("<stop>")
+    sentences = sentences[:-1]
+    sentences = [s.strip() for s in sentences]
+    return sentences
 
 
 def sentence_length(sent):
@@ -48,10 +77,16 @@ def calc_sentence_similarity(text, desc=True, debug=False):
 
 def beautify_text(adapted_text, adaptation_dto, debug=False):
     text = adapted_text
-    sentences = split_into_sentences(text)
+    def add_punctuation(s):
+        if re.match('.*[?.!]$', s) is None:
+            return s + "."
+        else:
+            return s
+    sentences = split_into_sentences(add_punctuation(text.strip()))
+
 
     # Capitalize first word of each sentence
-    text = ''.join(list(map(lambda s: s.capitalize(), sentences)))
+    text = ' '.join(list(map(lambda s: add_punctuation(s.capitalize()), sentences)))
 
     # TO-DO: what if there exists a lowercase occurrence in the text
     entities, entities_lower = adaptation_dto.entities()
@@ -65,8 +100,10 @@ def beautify_text(adapted_text, adaptation_dto, debug=False):
 
 
 def replace(x, text):
-    text = re.sub(r'\b' + x[1] + r'\b', x[0], text)
-    text = re.sub(r'([^a-zA-Z\s]*)' + x[1] + r'([^a-zA-Z\s]*)', r'\1' + x[0] + r'\2', text)
+    if re.search('[^a-zA-Z]', x[0]) is None:
+        text = re.sub(r'([^\w]+)' + x[1] + r'([^\w]+)', r'\1' + x[0] + r'\2', text)
+    else:
+        text = text.replace(x[1], x[0])
     return text
 
 
@@ -210,5 +247,5 @@ def flesch_reading_ease(text):
     n_syl = 0
     for w in tokenize.word_tokenize(text):
         n_syl = n_syl + syllables.estimate(w)
-    fre = 206.835 - 1.015 * (n_word / n_sents) - 84.6 * (n_syl / n_word)
+    fre = 206.835 - 1.015 *  (0 if n_sents == 0 else (n_word / n_sents)) - 84.6 * (0 if n_word == 0 else (n_syl / n_word))
     return fre

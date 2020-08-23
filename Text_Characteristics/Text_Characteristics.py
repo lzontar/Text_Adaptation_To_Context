@@ -265,7 +265,7 @@ class Text_Characteristics:
         return {
             "LEN": len(tokenize.word_tokenize(text)),
             "SENT_ANAL": {
-                "POLAR": statistics.mean(sentence_polarity)
+                "POLAR": self.sentiment_analyzer.polarity_scores(text)['compound'] if len(sentence_polarity) == 0 else statistics.mean(sentence_polarity)
             },
             "READ": com.flesch_reading_ease(text)
         }
