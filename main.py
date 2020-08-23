@@ -74,7 +74,7 @@ for mode in modes:
 
         sample_size = 50
         debug = False
-        iter = 1
+        iter = 0
 
         tc = text_char(target)
 
@@ -114,9 +114,10 @@ for mode in modes:
             print("Dataset length: " + str(len(dataset)))
             for count in range(len(dataset)):
                 try:
+                    count_file = count + iter*sample_size
                     text = dataset[count]
                     print(count)
-                    output = open("/content/drive/My Drive/Data/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
+                    output = open("/content/drive/My Drive/Data/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count_file) + ".txt", "w+", encoding='utf-8')
                     output.write(str(text))
                     output.close()
 
@@ -129,7 +130,7 @@ for mode in modes:
                     # adapted_measures = tc.calc_text_measures(adapted_text)
                     # sum_measures_result = plus(sum_measures_result, adapted_measures)
 
-                    output = open("/content/drive/My Drive/Data/Results_02/out_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
+                    output = open("/content/drive/My Drive/Data/Results_02/out_" + mode + "_" + target + "_" + orig_type + str(count_file) + ".txt", "w+", encoding='utf-8')
                     output.write(str(adapted_text))
                     output.close()
                 except Exception as e:
@@ -256,11 +257,11 @@ for mode in modes:
         #
         # if target != 'SOC_MED':
         #     print('SOC_MED')
-        #     dataset = pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text'].iloc[50 + iter*sample_size: + iter*(sample_size+1)]
+        #     dataset = pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text'].iloc[50 + iter*sample_size: + (iter+1)*sample_size]
         #     dict_init['SOC_MED'], dict_result['SOC_MED'], dict_init_rel['SOC_MED'], dict_result_rel['SOC_MED'], dict_length['SOC_MED'], dict_length_rel['SOC_MED'] = adapt(dataset, 'SOC_MED')
         if target != 'NEWS':
             print('NEWS')
-            dataset = pd.read_csv(_data_absolute_path + 'news/news.csv')['text'].iloc[50 + iter*sample_size: + iter*(sample_size+1)]
+            dataset = pd.read_csv(_data_absolute_path + 'news/news.csv')['text'].iloc[50 + iter*sample_size: + (iter+1)*sample_size]
             dict_init['NEWS'], dict_result['NEWS'], dict_init_rel['NEWS'], dict_result_rel['NEWS'], dict_length['NEWS'], dict_length_rel['NEWS'] = adapt(dataset, 'NEWS')
 
         keys = ['OFC_STMT', 'RES_ARTCL', 'SOC_MED', 'NEWS']
