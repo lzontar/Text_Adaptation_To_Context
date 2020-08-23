@@ -56,7 +56,7 @@ variance_measures = {
 
 modes = ["PARA"]
 for mode in modes:
-    targets = ["SOC_MED"]
+    targets = ["RES_ARTCL"]
     for target in targets:
         # if (target == "SOC_MED" or target == "NEWS") and mode != "PARA":
         #     continue
@@ -74,6 +74,7 @@ for mode in modes:
 
         sample_size = 50
         debug = False
+        iter = 1
 
         tc = text_char(target)
 
@@ -110,32 +111,32 @@ for mode in modes:
             #         },
             #         "READ": 0
             #     }
-
-            count = 50
-            for text in dataset:
-                print(count)
-                output = open("/content/drive/My Drive/Data/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
-                output.write(str(text))
-                output.close()
-
-                # init_measures = tc.calc_text_measures(text)
-                # sum_measures_init = plus(sum_measures_init, init_measures)
+            print("Dataset length: " + str(len(dataset)))
+            for count in range(len(dataset)):
                 try:
+                    text = dataset[count]
+                    print(count)
+                    output = open("/content/drive/My Drive/Data/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
+                    output.write(str(text))
+                    output.close()
+
+                    # init_measures = tc.calc_text_measures(text)
+                    # sum_measures_init = plus(sum_measures_init, init_measures)
                     adapted_text, adapted_length = ta.adapt_text(mode, model_para, model_gen, model_sum, tokenizer_para, tokenizer_gen, tokenizer_sum, device_para, device_gen, device_sum, text, mean_measures, target, nlp, dictionary, tc, debug)
+                    # adapted_length_measures = tc.calc_text_measures(adapted_length)
+                    # sum_measures_length = plus(sum_measures_length, adapted_length_measures)
+
+                    # adapted_measures = tc.calc_text_measures(adapted_text)
+                    # sum_measures_result = plus(sum_measures_result, adapted_measures)
+
+                    output = open("/content/drive/My Drive/Data/Results_02/out_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
+                    output.write(str(adapted_text))
+                    output.close()
                 except Exception as e:
                     print("OMFG AN ERROOOOOR!!!! I don't give a shit, let's continue");
+                    print(e)
                     continue
-                # adapted_length_measures = tc.calc_text_measures(adapted_length)
-                # sum_measures_length = plus(sum_measures_length, adapted_length_measures)
 
-                # adapted_measures = tc.calc_text_measures(adapted_text)
-                # sum_measures_result = plus(sum_measures_result, adapted_measures)
-
-                output = open("/content/drive/My Drive/Data/Results_02/out_" + mode + "_" + target + "_" + orig_type + str(count) + ".txt", "w+", encoding='utf-8')
-                output.write(str(adapted_text))
-                output.close()
-
-                count = count + 1
             # mean_measures_init = {
             #         "LEN": sum_measures_init["LEN"] / sample_size,
             #         "SENT_ANAL": {
@@ -228,17 +229,17 @@ for mode in modes:
             'NEWS': None
         }
 
-        if target != 'OFC_STMT':
-            print('OFC_STMT')
-            dataset = pd.read_csv(_data_absolute_path + 'official_statements/data.csv')['content'].iloc[100:100+sample_size]
-            dict_init['OFC_STMT'], dict_result['OFC_STMT'], dict_init_rel['OFC_STMT'], dict_result_rel['OFC_STMT'], dict_length['OFC_STMT'], dict_length_rel['OFC_STMT'] = adapt(dataset, 'OFC_STMT')
+        # if target != 'OFC_STMT':
+        #     print('OFC_STMT')
+        #     dataset = pd.read_csv(_data_absolute_path + 'official_statements/data.csv')['content'].iloc[50:50+sample_size]
+        #     dict_init['OFC_STMT'], dict_result['OFC_STMT'], dict_init_rel['OFC_STMT'], dict_result_rel['OFC_STMT'], dict_length['OFC_STMT'], dict_length_rel['OFC_STMT'] = adapt(dataset, 'OFC_STMT')
         if target != 'RES_ARTCL':
             print('RES_ARTCL')
             rootdir = _data_absolute_path + 'research_articles/document_parses/pdf_json'
             dataset = []
             for subdir, dirs, files in os.walk(rootdir):
                 ix = 0
-                files = files[100:100+sample_size]
+                files = files[50:50+sample_size]
                 for f in files:
                     if ix == sample_size:
                         break
@@ -253,13 +254,13 @@ for mode in modes:
                     ix = ix + 1
             dict_init['RES_ARTCL'], dict_result['RES_ARTCL'], dict_init_rel['RES_ARTCL'], dict_result_rel['RES_ARTCL'], dict_length['RES_ARTCL'], dict_length_rel['RES_ARTCL'] = adapt(dataset, 'RES_ARTCL')
         #
-        if target != 'SOC_MED':
-            print('SOC_MED')
-            dataset = pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text'].iloc[100:100+sample_size]
-            dict_init['SOC_MED'], dict_result['SOC_MED'], dict_init_rel['SOC_MED'], dict_result_rel['SOC_MED'], dict_length['SOC_MED'], dict_length_rel['SOC_MED'] = adapt(dataset, 'SOC_MED')
+        # if target != 'SOC_MED':
+        #     print('SOC_MED')
+        #     dataset = pd.read_csv(_data_absolute_path + 'tweets/covid19_tweets.csv')['text'].iloc[50 + iter*sample_size: + iter*(sample_size+1)]
+        #     dict_init['SOC_MED'], dict_result['SOC_MED'], dict_init_rel['SOC_MED'], dict_result_rel['SOC_MED'], dict_length['SOC_MED'], dict_length_rel['SOC_MED'] = adapt(dataset, 'SOC_MED')
         if target != 'NEWS':
             print('NEWS')
-            dataset = pd.read_csv(_data_absolute_path + 'news/news.csv')['text'].iloc[100:100+sample_size]
+            dataset = pd.read_csv(_data_absolute_path + 'news/news.csv')['text'].iloc[50 + iter*sample_size: + iter*(sample_size+1)]
             dict_init['NEWS'], dict_result['NEWS'], dict_init_rel['NEWS'], dict_result_rel['NEWS'], dict_length['NEWS'], dict_length_rel['NEWS'] = adapt(dataset, 'NEWS')
 
         keys = ['OFC_STMT', 'RES_ARTCL', 'SOC_MED', 'NEWS']
