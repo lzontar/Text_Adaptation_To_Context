@@ -115,7 +115,7 @@ for mode in modes:
             for count in range(len(dataset)):
                 try:
                     count_file = count + iter*sample_size
-                    text = dataset[count]
+                    text = dataset.iloc[count]
                     print(count_file)
                     output = open("/content/drive/My Drive/Data/Results_02/input_" + mode + "_" + target + "_" + orig_type + str(count_file) + ".txt", "w+", encoding='utf-8')
                     output.write(str(text))
